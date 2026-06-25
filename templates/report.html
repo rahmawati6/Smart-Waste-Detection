@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Laporan EcoLens{% endblock %}
+{% block page_title %}Laporan{% endblock %}
+{% block heading %}Laporan EcoLens{% endblock %}
+
+{% block content %}
+<section class="card filter-card">
+    <div class="section-title">
+        <h3><span class="title-icon"><svg><use href="#i-report"></use></svg></span> Filter & Export</h3>
+        <span>{{ rows|length }} data</span>
+    </div>
+    <form class="filter-bar" method="get">
+        <label>Dari Tanggal
+            <input type="date" name="start_date" value="{{ start_date }}">
+        </label>
+        <label>Sampai Tanggal
+            <input type="date" name="end_date" value="{{ end_date }}">
+        </label>
+        <button class="btn primary" type="submit">Filter</button>
+        <a class="btn secondary" href="{{ url_for('export_xlsx', start_date=start_date, end_date=end_date) }}">Export Excel</a>
+        <a class="btn danger" href="{{ url_for('export_pdf', start_date=start_date, end_date=end_date) }}">Export PDF</a>
+    </form>
+</section>
+
+<section class="stat-grid">
+    <article class="stat-card highlight"><span class="stat-icon"><svg><use href="#i-report"></use></svg></span><span>Total Nilai Ekonomi</span><strong>{{ total_value|rupiah }}</strong><small>Akumulasi periode aktif</small></article>
+    {% for category, total in categories.items() %}
+        <article class="stat-card"><span class="stat-icon green"><svg><use href="#i-dataset"></use></svg></span><span>{{ category }}</span><strong>{{ total }}</strong><small>Jumlah analisis</small></article>
+    {% endfor %}
+</section>
+
+<section class="grid two">
+    <article class="card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-dashboard"></use></svg></span> Jumlah per Kategori</h3>
+        </div>
+        <div class="bar-list">
+            {% for category, total in categories.items() %}
+                <div class="bar-row">
+                    <span>{{ category }}</span>
+                    <div class="bar-track"><i style="width: {{ (total / (categories.values()|list|max) * 100)|round(0) if categories else 0 }}%"></i></div>
+                    <strong>{{ total }}</strong>
+                </div>
+            {% else %}
+                <p class="empty">Belum ada data laporan.</p>
+            {% endfor %}
+        </div>
+    </article>
+    <article class="card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-spark"></use></svg></span> Export Center</h3>
+        </div>
+        <div class="export-panel">
+            <a class="btn secondary" href="{{ url_for('export_xlsx', start_date=start_date, end_date=end_date) }}">Download Excel</a>
+            <a class="btn danger" href="{{ url_for('export_pdf', start_date=start_date, end_date=end_date) }}">Download PDF</a>
+        </div>
+    </article>
+</section>
+
+<section class="card">
+    <div class="section-title"><h3><span class="title-icon"><svg><use href="#i-history"></use></svg></span> Detail Laporan</h3><span>{{ rows|length }} data</span></div>
+    <div class="table-wrap modern-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Jenis Spesifik</th>
+                    <th>Kategori</th>
+                    <th>Kondisi</th>
+                    <th>Potensi</th>
+                    <th>Berat</th>
+                    <th>Nilai</th>
+                    <th>Rekomendasi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>{{ row.created_at }}</td>
+                    <td><strong>{{ row.item_name or row.waste_type }}</strong></td>
+                    <td>{{ row.category }}</td>
+                    <td><span class="status-pill">{{ row.condition }}</span></td>
+                    <td>{{ row.potential }}</td>
+                    <td>{{ row.weight }} kg</td>
+                    <td>{{ row.economic_value|rupiah }}</td>
+                    <td>{{ row.processing_action }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="8" class="empty">Tidak ada data pada rentang tanggal ini.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,14 @@
+path: C:/laragon/www/sistem-daur-ulang-sampah/dataset_yolo
+train: images/train
+val: images/valid
+test: images/test
+
+names:
+  0: plastik
+  1: kertas
+  2: logam
+  3: kaca
+  4: karet_kain
+  5: organik
+  6: elektronik
+  7: campuran

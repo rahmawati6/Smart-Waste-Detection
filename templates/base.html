@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}EcoLens{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo-mark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <svg class="svg-sprite" aria-hidden="true">
+        <symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="8" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="15" width="7" height="6" rx="2"/></symbol>
+        <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 7V5a2 2 0 0 1 2-2h2"/><path d="M16 3h2a2 2 0 0 1 2 2v2"/><path d="M20 17v2a2 2 0 0 1-2 2h-2"/><path d="M8 21H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/></symbol>
+        <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M20 16.5V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2.5"/></symbol>
+        <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4 16 7h3a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3l1.5-3z"/><circle cx="12" cy="13" r="4"/></symbol>
+        <symbol id="i-dataset" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></symbol>
+        <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/><path d="M12 7v5l3 2"/></symbol>
+        <symbol id="i-report" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></symbol>
+        <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+        <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+        <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/></symbol>
+        <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></symbol>
+        <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+        <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7z"/><path d="M19 16l.7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7z"/></symbol>
+    </svg>
+
+    <aside class="app-sidebar" id="sidebar">
+        <div class="sidebar-head">
+            <a class="brand" href="{{ url_for('dashboard') }}">
+                <img src="{{ url_for('static', filename='img/logo-badge.png') }}" alt="EcoLens" class="brand-mark">
+                <span class="brand-text">
+                    <strong>EcoLens</strong>
+                    <small>AI Circular Economy</small>
+                </span>
+            </a>
+            <button class="icon-button collapse-toggle" type="button" data-sidebar-toggle aria-label="Collapse sidebar">
+                <svg><use href="#i-menu"></use></svg>
+            </button>
+        </div>
+
+        <nav class="menu">
+            <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}"><svg><use href="#i-dashboard"></use></svg><span>Dashboard</span></a>
+            <a href="{{ url_for('analysis') }}" class="{{ 'active' if request.endpoint == 'analysis' else '' }}"><svg><use href="#i-scan"></use></svg><span>Analisis Sampah</span></a>
+            <a href="{{ url_for('upload') }}" class="{{ 'active' if request.endpoint == 'upload' else '' }}"><svg><use href="#i-upload"></use></svg><span>Upload Foto</span></a>
+            <a href="{{ url_for('camera') }}" class="{{ 'active' if request.endpoint == 'camera' else '' }}"><svg><use href="#i-camera"></use></svg><span>Kamera Sampah</span></a>
+            <a href="{{ url_for('dataset') }}" class="{{ 'active' if request.endpoint and request.endpoint.startswith('dataset') else '' }}"><svg><use href="#i-dataset"></use></svg><span>Dataset Sampah</span></a>
+            <a href="{{ url_for('history') }}" class="{{ 'active' if request.endpoint == 'history' else '' }}"><svg><use href="#i-history"></use></svg><span>Riwayat Analisis</span></a>
+            <a href="{{ url_for('report') }}" class="{{ 'active' if request.endpoint == 'report' else '' }}"><svg><use href="#i-report"></use></svg><span>Laporan</span></a>
+            <a href="{{ url_for('about') }}" class="{{ 'active' if request.endpoint == 'about' else '' }}"><svg><use href="#i-info"></use></svg><span>Tentang Sistem</span></a>
+        </nav>
+
+        <div class="sidebar-card">
+            <svg><use href="#i-spark"></use></svg>
+            <span class="brand-text">Dataset aktif membantu model membaca sampah lebih akurat.</span>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="avatar">A</div>
+            <span class="brand-text">
+                <strong>{{ session.get('username', 'admin') }}</strong>
+                <small>Administrator</small>
+            </span>
+            <a class="logout-link" href="{{ url_for('logout') }}">Keluar</a>
+        </div>
+    </aside>
+
+    <main class="app-main">
+        <div class="page-shell">
+            <header class="app-header">
+                <div class="header-title">
+                    <nav class="breadcrumb">
+                        <a href="{{ url_for('dashboard') }}">EcoLens</a>
+                        <svg><use href="#i-chevron"></use></svg>
+                        <span>{% block page_title %}Dashboard{% endblock %}</span>
+                    </nav>
+                    <h1>{% block heading %}{{ self.page_title() }}{% endblock %}</h1>
+                </div>
+
+                <div class="header-actions">
+                    <label class="search-box">
+                        <svg><use href="#i-search"></use></svg>
+                        <input type="search" placeholder="Cari analisis, kategori, laporan...">
+                    </label>
+                    <div class="dashboard-clock" id="realTimeClock" aria-live="polite"></div>
+                    <button class="icon-button notify" type="button" aria-label="Notification">
+                        <svg><use href="#i-bell"></use></svg>
+                        <i></i>
+                    </button>
+                    <details class="profile-menu">
+                        <summary>
+                            <img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="EcoLens">
+                            <span>
+                                <strong>{{ session.get('username', 'admin') }}</strong>
+                                <small>Administrator</small>
+                            </span>
+                        </summary>
+                        <div>
+                            <a href="{{ url_for('about') }}">Tentang EcoLens</a>
+                            <a href="{{ url_for('logout') }}">Keluar</a>
+                        </div>
+                    </details>
+                </div>
+            </header>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-wrap">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% if dataset_status and dataset_status.warning and request.endpoint != 'login' %}
+                <div class="flash dataset-warning">{{ dataset_status.warning }} Tambahkan data di halaman Dataset Sampah.</div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script>
+    const sidebar = document.getElementById('sidebar');
+    const savedSidebar = localStorage.getItem('ecolens-sidebar');
+    if (savedSidebar === 'collapsed') document.body.classList.add('sidebar-collapsed');
+    document.querySelectorAll('[data-sidebar-toggle]').forEach(button => {
+        button.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-collapsed');
+            localStorage.setItem('ecolens-sidebar', document.body.classList.contains('sidebar-collapsed') ? 'collapsed' : 'expanded');
+        });
+    });
+    </script>
+    <script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Analisis Sampah{% endblock %}
+{% block page_title %}Analisis Sampah{% endblock %}
+{% block heading %}Analisis Sampah{% endblock %}
+
+{% block content %}
+{% if saved %}
+<div class="verify-toast" id="verifyToast" role="status">
+    <span class="stat-icon green"><svg><use href="#i-spark"></use></svg></span>
+    <div>
+        <strong>Hasil analisis berhasil diverifikasi dan disimpan ke riwayat.</strong>
+        <small>Halaman analisis sudah kembali ke kondisi awal.</small>
+    </div>
+</div>
+{% endif %}
+
+{% if result %}
+<section class="analysis-grid" id="analysisResult">
+    <article class="card media-card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-scan"></use></svg></span> Gambar Sampah</h3>
+            <span>{{ result.source }}</span>
+        </div>
+        <img src="{{ url_for('static', filename=result.image_path.replace('static/', '')) }}" alt="Gambar sampah">
+        <blockquote>Hasil ini belum masuk riwayat. Klik <strong>Simpan & Verifikasi</strong> agar data tersimpan ke database.</blockquote>
+    </article>
+
+    <article class="card result-card">
+        <div class="result-head">
+            <span class="stat-icon green"><svg><use href="#i-spark"></use></svg></span>
+            <div>
+                <p class="eyebrow">Pending Verification</p>
+                <h2>{{ result.item_name or result.waste_type }}</h2>
+            </div>
+        </div>
+        <div class="result-list">
+            <div><span>Jenis Spesifik</span><strong>{{ result.item_name or result.waste_type }}</strong></div>
+            <div><span>Kategori</span><strong>{{ result.category }}</strong></div>
+            <div><span>Label Deteksi</span><strong>{{ result.detected_label }}</strong></div>
+            <div><span>Confidence</span><strong>{{ "%.0f"|format(result.confidence * 100) }}%</strong></div>
+            <div><span>Kondisi</span><strong><mark>{{ result.condition }}</mark></strong></div>
+            <div><span>Potensi</span><strong>{{ result.potential }}</strong></div>
+            <div><span>Berat</span><strong>{{ result.weight }} kg</strong></div>
+            <div><span>Harga/kg</span><strong>{{ result.price_per_kg|rupiah }}</strong></div>
+            <div><span>Nilai Ekonomi</span><strong>{{ result.economic_value|rupiah }}</strong></div>
+            <div><span>Aksi</span><strong>{{ result.processing_action }}</strong></div>
+        </div>
+        <blockquote>{{ result.recommendation }}</blockquote>
+
+        <div class="actions analysis-actions">
+            <form action="{{ url_for('analysis_verify') }}" method="post">
+                <button class="btn primary" type="submit"><svg><use href="#i-report"></use></svg> Simpan & Verifikasi</button>
+            </form>
+            <button class="btn secondary" type="button" data-toggle-correction><svg><use href="#i-spark"></use></svg> Koreksi Label</button>
+            <form action="{{ url_for('analysis_reset') }}" method="post">
+                <button class="btn secondary" type="submit"><svg><use href="#i-upload"></use></svg> Analisis Foto Lain</button>
+            </form>
+            <a class="btn secondary" href="{{ url_for('camera') }}"><svg><use href="#i-camera"></use></svg> Pakai Kamera</a>
+        </div>
+
+        <form class="correction-panel" id="correctionPanel" action="{{ url_for('analysis_correct') }}" method="post" hidden>
+            <label>Koreksi Jenis Spesifik
+                <select name="item_key" required>
+                    {% for category, items in item_groups.items() %}
+                        <optgroup label="{{ category }}">
+                            {% for item in items %}
+                                <option value="{{ item.item_key }}" {{ 'selected' if item.item_key == result.item_key else '' }}>{{ item.item_name }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="btn primary" type="submit">Terapkan Koreksi</button>
+        </form>
+    </article>
+</section>
+{% else %}
+<section class="empty-state card" id="analysisInitialState">
+    <img src="{{ url_for('static', filename='img/logo-badge.png') }}" alt="EcoLens">
+    <p class="eyebrow">Ready for New Analysis</p>
+    <h2>Belum ada hasil analisis aktif</h2>
+    <p>Unggah foto sampah atau ambil gambar dari kamera. Data tidak akan masuk riwayat sebelum Anda menekan Simpan & Verifikasi.</p>
+    <div class="actions center">
+        <a class="btn primary" href="{{ url_for('upload') }}"><svg><use href="#i-upload"></use></svg> Upload Foto</a>
+        <a class="btn secondary" href="{{ url_for('camera') }}"><svg><use href="#i-camera"></use></svg> Pakai Kamera</a>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const correctionButton = document.querySelector('[data-toggle-correction]');
+const correctionPanel = document.getElementById('correctionPanel');
+correctionButton?.addEventListener('click', () => {
+    correctionPanel.hidden = !correctionPanel.hidden;
+});
+
+const verifyToast = document.getElementById('verifyToast');
+if (verifyToast) {
+    setTimeout(() => {
+        verifyToast.classList.add('is-hiding');
+        setTimeout(() => verifyToast.remove(), 350);
+    }, 2000);
+}
+</script>
+{% endblock %}

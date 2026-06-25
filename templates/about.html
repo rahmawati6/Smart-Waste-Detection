@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Tentang EcoLens{% endblock %}
+{% block page_title %}Tentang Sistem{% endblock %}
+{% block heading %}Tentang EcoLens{% endblock %}
+
+{% block content %}
+<section class="about-hero card">
+    <div>
+        <p class="eyebrow">Circular Economy AI Platform</p>
+        <h2>EcoLens membantu melihat nilai baru dari sampah.</h2>
+        <p>Platform berbasis Flask, YOLO, OpenCV, dan SQLite untuk mengidentifikasi sampah, menilai kondisi, menghitung nilai ekonomi, serta memberi rekomendasi pengolahan.</p>
+        <div class="hero-actions">
+            <a class="btn primary" href="{{ url_for('upload') }}"><svg><use href="#i-upload"></use></svg> Mulai Analisis</a>
+            <a class="btn secondary" href="{{ url_for('dataset') }}"><svg><use href="#i-dataset"></use></svg> Kelola Dataset</a>
+        </div>
+    </div>
+    <div class="circular-illustration" aria-label="Circular Economy Illustration">
+        <div class="circle-orbit"><span>AI</span><span>Sort</span><span>Recycle</span><span>Value</span></div>
+        <img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="EcoLens">
+    </div>
+</section>
+
+<section class="about-grid">
+    <article class="card">
+        <div class="section-title"><h3><span class="title-icon"><svg><use href="#i-scan"></use></svg></span> Cara Kerja EcoLens</h3></div>
+        <div class="steps">
+            <div><b>01</b><strong>Upload / Kamera</strong><span>Pengguna mengirim gambar sampah dari file atau webcam.</span></div>
+            <div><b>02</b><strong>Deteksi AI</strong><span>YOLO dan analisis visual membaca jenis serta kondisi sampah.</span></div>
+            <div><b>03</b><strong>Nilai Ekonomi</strong><span>Sistem menghitung estimasi rupiah berdasarkan berat dan kondisi.</span></div>
+            <div><b>04</b><strong>Rekomendasi</strong><span>Output diarahkan ke daur ulang, dijual, energi, atau penanganan khusus.</span></div>
+        </div>
+    </article>
+
+    <article class="card">
+        <div class="section-title"><h3><span class="title-icon"><svg><use href="#i-dashboard"></use></svg></span> Statistik AI</h3></div>
+        <div class="insight-grid">
+            <div><strong>8</strong><span>Kategori sampah</span></div>
+            <div><strong>4</strong><span>Kondisi kualitas</span></div>
+            <div><strong>3</strong><span>Level potensi</span></div>
+            <div><strong>YOLO</strong><span>Custom-ready</span></div>
+        </div>
+    </article>
+</section>
+
+<section class="card">
+    <div class="section-title"><h3><span class="title-icon"><svg><use href="#i-spark"></use></svg></span> Teknologi yang Digunakan</h3></div>
+    <div class="tech-grid">
+        <div><span>🐍</span><strong>Python</strong><small>Core backend</small></div>
+        <div><span>⚗️</span><strong>Flask</strong><small>Web framework</small></div>
+        <div><span>🎯</span><strong>YOLOv8</strong><small>Object detection</small></div>
+        <div><span>👁️</span><strong>OpenCV</strong><small>Camera & image</small></div>
+        <div><span>🧠</span><strong>AI Rules</strong><small>Recommendation</small></div>
+        <div><span>🗄️</span><strong>SQLite</strong><small>Local database</small></div>
+    </div>
+</section>
+
+<section class="card">
+    <div class="section-title"><h3><span class="title-icon"><svg><use href="#i-report"></use></svg></span> Harga Estimasi per Kg</h3><span>Rupiah</span></div>
+    <div class="price-card-grid">
+        {% for category, price in prices.items() %}
+            <article><span>{{ category[:2] }}</span><strong>{{ category }}</strong><b>{{ price|rupiah }}</b></article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="about-grid">
+    <article class="card">
+        <div class="section-title"><h3><span class="title-icon"><svg><use href="#i-spark"></use></svg></span> Keunggulan Aplikasi</h3></div>
+        <ul class="check-list">
+            <li>Siap demo untuk presentasi tugas kuliah.</li>
+            <li>Dataset dapat ditambah dan dilatih ulang.</li>
+            <li>Upload, kamera, riwayat, dan laporan tersedia dalam satu sistem.</li>
+            <li>Estimasi ekonomi membantu bank sampah dan UMKM memilah prioritas.</li>
+        </ul>
+    </article>
+    <article class="card">
+        <div class="section-title"><h3><span class="title-icon"><svg><use href="#i-info"></use></svg></span> FAQ</h3></div>
+        <div class="faq-list">
+            <details open><summary>Apakah model bisa diganti?</summary><p>Bisa. Letakkan model custom di <code>models/yolov8_waste.pt</code>.</p></details>
+            <details><summary>Apakah dataset bisa ditambah?</summary><p>Bisa melalui halaman Dataset Sampah atau script downloader.</p></details>
+            <details><summary>Apakah kamera membutuhkan internet?</summary><p>Tidak. Kamera berjalan dari browser/laptop lokal.</p></details>
+        </div>
+    </article>
+</section>
+
+<section class="card developer-card">
+    <div>
+        <p class="eyebrow">Developer Info</p>
+        <h3>Dikembangkan untuk demo sistem rekomendasi daur ulang sampah.</h3>
+        <p>Nama aplikasi: <strong>EcoLens</strong> · Versi: <strong>1.0.0</strong> · Tahun: <strong>2026</strong></p>
+    </div>
+    <img src="{{ url_for('static', filename='img/logo-badge.png') }}" alt="EcoLens">
+</section>
+{% endblock %}

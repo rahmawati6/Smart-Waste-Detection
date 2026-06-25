@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Dashboard EcoLens{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block heading %}Selamat datang, {{ session.get('username', 'admin') }}!{% endblock %}
+
+{% block content %}
+<script id="dashboardChartData" type="application/json">
+{{ {
+    "total": stats.total,
+    "value": stats.value,
+    "categories": stats.category_chart,
+    "trend": stats.trend_chart,
+    "potential": stats.potential_chart
+}|tojson }}
+</script>
+
+<section class="hero-card dashboard-hero compact-hero">
+    <div>
+        <p class="eyebrow">Operational Overview</p>
+        <h2>Ringkasan real-time analisis sampah dan nilai ekonomi.</h2>
+        <p>Seluruh statistik, grafik, dan aktivitas terbaru diambil langsung dari database MySQL <strong>ecolens_db.analysis_results</strong>.</p>
+    </div>
+    <div class="hero-actions">
+        <a class="btn primary" href="{{ url_for('upload') }}"><svg><use href="#i-upload"></use></svg> Upload Foto</a>
+        <a class="btn secondary" href="{{ url_for('camera') }}"><svg><use href="#i-camera"></use></svg> Buka Kamera</a>
+    </div>
+</section>
+
+{% if not stats.total %}
+<section class="card empty-dashboard-message">
+    <p class="empty">Belum ada data analisis. Silakan upload foto atau gunakan kamera untuk menghasilkan data.</p>
+</section>
+{% endif %}
+
+<section class="stat-grid dashboard-stat-grid">
+    <article class="card stat-card">
+        <span class="stat-icon violet"><svg><use href="#i-dashboard"></use></svg></span>
+        <span>Total Analisis</span>
+        <strong>{{ stats.total }}</strong>
+        <small>COUNT(*) dari tabel analysis_results</small>
+    </article>
+    <article class="card stat-card">
+        <span class="stat-icon green"><svg><use href="#i-spark"></use></svg></span>
+        <span>Layak Daur Ulang</span>
+        <strong>{{ stats.recycle }}</strong>
+        <small>Berdasarkan recycle_potential</small>
+    </article>
+    <article class="card stat-card">
+        <span class="stat-icon amber"><svg><use href="#i-report"></use></svg></span>
+        <span>Layak Dijual</span>
+        <strong>{{ stats.sell }}</strong>
+        <small>Berdasarkan recycle_potential</small>
+    </article>
+    <article class="card stat-card">
+        <span class="stat-icon blue"><svg><use href="#i-scan"></use></svg></span>
+        <span>Diproses Energi</span>
+        <strong>{{ stats.energy }}</strong>
+        <small>Berdasarkan recycle_potential</small>
+    </article>
+    <article class="card stat-card highlight">
+        <span class="stat-icon"><svg><use href="#i-report"></use></svg></span>
+        <span>Total Nilai Ekonomi</span>
+        <strong>{{ stats.value|rupiah }}</strong>
+        <small>SUM(economic_value) dari MySQL</small>
+    </article>
+</section>
+
+<section class="dashboard-grid chart-dashboard-grid">
+    <article class="card chart-card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-dashboard"></use></svg></span> Persentase Jenis Sampah</h3>
+            <span>{{ stats.total }} data</span>
+        </div>
+        <div class="chart-shell">
+            {% if stats.total %}
+                <canvas id="categoryPieChart" aria-label="Diagram lingkaran jenis sampah"></canvas>
+            {% else %}
+                <p class="empty">Belum ada data analisis. Silakan upload foto atau gunakan kamera untuk menghasilkan data.</p>
+            {% endif %}
+        </div>
+    </article>
+
+    <article class="card chart-card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-report"></use></svg></span> Jumlah per Kategori</h3>
+            <span>Query GROUP BY waste_type</span>
+        </div>
+        <div class="chart-shell">
+            {% if stats.total %}
+                <canvas id="categoryBarChart" aria-label="Diagram batang jumlah analisis berdasarkan kategori"></canvas>
+            {% else %}
+                <p class="empty">Belum ada data analisis. Silakan upload foto atau gunakan kamera untuk menghasilkan data.</p>
+            {% endif %}
+        </div>
+    </article>
+
+    <article class="card quick-card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-spark"></use></svg></span> Quick Action</h3>
+        </div>
+        <a class="drop-action" href="{{ url_for('upload') }}">
+            <svg><use href="#i-upload"></use></svg>
+            <strong>Upload Foto Sampah</strong>
+            <small>Analisis gambar baru dan simpan ke MySQL</small>
+        </a>
+        <div class="quick-links dashboard-quick-links">
+            <a href="{{ url_for('camera') }}"><svg><use href="#i-camera"></use></svg> Kamera</a>
+            <a href="{{ url_for('dataset') }}"><svg><use href="#i-dataset"></use></svg> Dataset</a>
+            <a href="{{ url_for('dataset') }}"><svg><use href="#i-spark"></use></svg> Training AI</a>
+        </div>
+    </article>
+</section>
+
+<section class="grid two dashboard-lower-grid">
+    <article class="card chart-card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-history"></use></svg></span> Tren Analisis Harian</h3>
+            <span>GROUP BY DATE(created_at)</span>
+        </div>
+        <div class="chart-shell line-chart-shell">
+            {% if stats.total %}
+                <canvas id="trendLineChart" aria-label="Grafik tren analisis per hari"></canvas>
+            {% else %}
+                <p class="empty">Belum ada data analisis. Silakan upload foto atau gunakan kamera untuk menghasilkan data.</p>
+            {% endif %}
+        </div>
+    </article>
+
+    <article class="card chart-card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-scan"></use></svg></span> Potensi Daur Ulang</h3>
+            <span>GROUP BY recycle_potential</span>
+        </div>
+        <div class="chart-shell">
+            {% if stats.total %}
+                <canvas id="potentialDonutChart" aria-label="Diagram potensi daur ulang"></canvas>
+            {% else %}
+                <p class="empty">Belum ada data analisis. Silakan upload foto atau gunakan kamera untuk menghasilkan data.</p>
+            {% endif %}
+        </div>
+    </article>
+</section>
+
+<section class="grid two dashboard-lower-grid">
+    <article class="card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-history"></use></svg></span> Recent Activity</h3>
+            <a href="{{ url_for('history') }}">Lihat semua</a>
+        </div>
+        <div class="activity-list recent-activity-list">
+            {% for row in stats.latest %}
+                <div>
+                    <img src="{{ url_for('static', filename=row.image_path.replace('static/', '')) }}" alt="{{ row.item_name or row.waste_type }}">
+                    <span>
+                        <strong>{{ row.item_name or row.waste_type }}</strong>
+                        <small>{{ row.category }} · {{ row.condition }} · <time class="relative-time" datetime="{{ row.created_at }}" data-time="{{ row.created_at }}">{{ row.created_at }}</time></small>
+                    </span>
+                    <em>{{ row.economic_value|rupiah }}</em>
+                </div>
+            {% else %}
+                <p class="empty">Belum ada data analisis. Silakan upload foto atau gunakan kamera untuk menghasilkan data.</p>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="card dashboard-summary-card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-info"></use></svg></span> Data Summary</h3>
+            <span>MySQL</span>
+        </div>
+        <div class="insight-grid">
+            <div><strong>{{ stats.categories|length }}</strong><span>Kategori terdeteksi</span></div>
+            <div><strong>{{ stats.not_eligible }}</strong><span>Tidak layak</span></div>
+            <div><strong>{{ stats.latest|length }}</strong><span>Aktivitas terbaru</span></div>
+        </div>
+    </article>
+</section>
+{% endblock %}

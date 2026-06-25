@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Upload Foto Sampah{% endblock %}
+{% block page_title %}Upload Foto{% endblock %}
+{% block heading %}Upload Foto Sampah{% endblock %}
+
+{% block content %}
+<section class="grid two">
+    <form class="card form-card upload-card" method="post" enctype="multipart/form-data">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-upload"></use></svg></span> Analisis dari File</h3>
+            <span>JPG · JPEG · PNG</span>
+        </div>
+        <label>Berat Sampah (kg)
+            <input type="number" name="weight" value="1" min="0.1" step="0.1" required>
+        </label>
+        <label class="upload-zone">Foto Sampah
+            <input id="imageInput" type="file" name="image" accept=".jpg,.jpeg,.png,image/*" required>
+            <span><svg><use href="#i-upload"></use></svg><strong>Drag & drop gambar di sini</strong><small>atau klik untuk memilih file maksimal 8MB</small></span>
+        </label>
+        <button class="btn primary" type="submit"><svg><use href="#i-scan"></use></svg> Analisis Gambar</button>
+    </form>
+
+    <article class="card preview-card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-dashboard"></use></svg></span> Preview</h3>
+            <span>Live preview</span>
+        </div>
+        <img id="previewImage" src="{{ url_for('static', filename='img/logo-badge.png') }}" alt="Preview gambar">
+        <div class="tips-box">
+            <strong>Tips foto yang baik</strong>
+            <ul>
+                <li>Ambil gambar dengan pencahayaan cukup.</li>
+                <li>Pastikan objek sampah terlihat jelas.</li>
+                <li>Gunakan background yang tidak terlalu ramai.</li>
+            </ul>
+        </div>
+    </article>
+</section>
+
+{% if result %}
+<section class="card quick-result">
+    <div class="section-title">
+        <h3><span class="title-icon"><svg><use href="#i-spark"></use></svg></span> Hasil Baru: {{ result.item_name or result.waste_type }}</h3>
+        <a href="{{ url_for('analysis') }}">Lihat detail</a>
+    </div>
+    <p>{{ result.recommendation }}</p>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const input = document.getElementById('imageInput');
+const preview = document.getElementById('previewImage');
+input?.addEventListener('change', event => {
+    const file = event.target.files[0];
+    if (file) preview.src = URL.createObjectURL(file);
+});
+</script>
+{% endblock %}

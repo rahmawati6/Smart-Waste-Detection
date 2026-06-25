@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Kamera Sampah{% endblock %}
+{% block page_title %}Kamera Sampah{% endblock %}
+{% block heading %}Kamera Sampah{% endblock %}
+
+{% block content %}
+<section class="camera-layout">
+    <article class="card camera-card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-camera"></use></svg></span> Webcam Browser</h3>
+            <span>Realtime capture</span>
+        </div>
+        <div class="camera-frame">
+            <video id="video" autoplay playsinline></video>
+            <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+        </div>
+        <canvas id="canvas" hidden></canvas>
+        <div class="camera-controls">
+            <label>Berat (kg)
+                <input id="cameraWeight" type="number" value="1" min="0.1" step="0.1">
+            </label>
+            <button class="btn secondary" id="startCamera" type="button"><svg><use href="#i-camera"></use></svg> Buka Kamera</button>
+            <button class="btn primary" id="capture" type="button"><svg><use href="#i-scan"></use></svg> Ambil Foto</button>
+        </div>
+        <p id="cameraStatus" class="muted">Izinkan akses kamera dari browser untuk menggunakan fitur ini.</p>
+    </article>
+
+    <aside class="stack">
+        <form class="card form-card" action="{{ url_for('opencv_capture') }}" method="post">
+            <div class="section-title">
+                <h3><span class="title-icon"><svg><use href="#i-scan"></use></svg></span> OpenCV Lokal</h3>
+            </div>
+            <p class="muted">Capture langsung dari laptop yang menjalankan Flask.</p>
+            <label>Berat Sampah (kg)
+                <input type="number" name="weight" value="1" min="0.1" step="0.1" required>
+            </label>
+            <button class="btn primary" type="submit">Ambil via OpenCV</button>
+        </form>
+        <article class="card">
+            <div class="section-title">
+                <h3><span class="title-icon"><svg><use href="#i-info"></use></svg></span> Checklist</h3>
+            </div>
+            <ul class="check-list">
+                <li>Kamera menghadap objek sampah.</li>
+                <li>Objek tidak terlalu gelap.</li>
+                <li>Berat sampah diisi sebelum analisis.</li>
+            </ul>
+        </article>
+    </aside>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const statusText = document.getElementById('cameraStatus');
+const startButton = document.getElementById('startCamera');
+const captureButton = document.getElementById('capture');
+
+startButton.addEventListener('click', async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        video.srcObject = stream;
+        statusText.textContent = 'Kamera aktif. Arahkan ke sampah lalu ambil foto.';
+    } catch (error) {
+        statusText.textContent = 'Kamera tidak dapat dibuka: ' + error.message;
+    }
+});
+
+captureButton.addEventListener('click', async () => {
+    if (!video.videoWidth) {
+        statusText.textContent = 'Buka kamera terlebih dahulu.';
+        return;
+    }
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    statusText.textContent = 'Menganalisis gambar...';
+    const response = await fetch('{{ url_for("analyze_camera_image") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            image_data: canvas.toDataURL('image/png'),
+            weight: document.getElementById('cameraWeight').value
+        })
+    });
+    const data = await response.json();
+    if (data.ok) {
+        window.location.href = data.redirect;
+    } else {
+        statusText.textContent = data.message || 'Analisis kamera gagal.';
+    }
+});
+</script>
+{% endblock %}

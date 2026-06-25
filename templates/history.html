@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Riwayat Analisis{% endblock %}
+{% block page_title %}Riwayat Analisis{% endblock %}
+{% block heading %}Riwayat Analisis{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="section-title">
+        <h3><span class="title-icon"><svg><use href="#i-history"></use></svg></span> Semua Analisis</h3>
+        <a href="{{ url_for('report') }}">Buka Laporan</a>
+    </div>
+    <div class="table-wrap modern-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Foto</th>
+                    <th>Tanggal</th>
+                    <th>Jenis Spesifik</th>
+                    <th>Kategori</th>
+                    <th>Kondisi</th>
+                    <th>Potensi</th>
+                    <th>Berat</th>
+                    <th>Nilai</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td><img class="thumb" src="{{ url_for('static', filename=row.image_path.replace('static/', '')) }}" alt="{{ row.category }}"></td>
+                    <td>{{ row.created_at }}</td>
+                    <td><strong>{{ row.item_name or row.waste_type }}</strong></td>
+                    <td>{{ row.category }}</td>
+                    <td><span class="status-pill">{{ row.condition }}</span></td>
+                    <td><span class="pill">{{ row.potential }}</span></td>
+                    <td>{{ row.weight }} kg</td>
+                    <td>{{ row.economic_value|rupiah }}</td>
+                    <td>{{ row.processing_action }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="9" class="empty">Belum ada riwayat.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

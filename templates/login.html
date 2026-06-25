@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login EcoLens</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo-mark.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-page login-premium">
+    <main class="login-frame">
+        <section class="login-split" aria-label="Login EcoLens">
+            <aside class="login-branding" aria-label="Branding EcoLens">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo EcoLens" class="login-brand-logo">
+                <div class="login-copy">
+                    <p class="eyebrow">AI Circular Economy Platform</p>
+                    <h1>AI untuk Masa Depan yang Lebih Bersih</h1>
+                    <p>
+                        EcoLens merupakan sistem berbasis Artificial Intelligence yang mampu mengidentifikasi jenis sampah,
+                        menganalisis kondisi, menghitung estimasi nilai ekonomi, serta memberikan rekomendasi pengolahan
+                        untuk mendukung Circular Economy.
+                    </p>
+                </div>
+
+                <div class="login-feature-grid">
+                    <div class="login-feature-card">
+                        <span><svg viewBox="0 0 24 24"><path d="M12 5a3 3 0 0 0-3 3v1H8a3 3 0 0 0 0 6h1v1a3 3 0 1 0 6 0v-1h1a3 3 0 0 0 0-6h-1V8a3 3 0 0 0-3-3Z"/><path d="M9 9h6M9 15h6"/></svg></span>
+                        <strong>Analisis AI</strong>
+                    </div>
+                    <div class="login-feature-card">
+                        <span><svg viewBox="0 0 24 24"><path d="m7 19-3-3 3-3"/><path d="M4 16h9a4 4 0 0 0 4-4v-1"/><path d="m17 5 3 3-3 3"/><path d="M20 8h-9a4 4 0 0 0-4 4v1"/></svg></span>
+                        <strong>Rekomendasi Daur Ulang</strong>
+                    </div>
+                    <div class="login-feature-card">
+                        <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10"/><path d="M16 9.5A3.3 3.3 0 0 0 12 8c-2.1 0-3.5.9-3.5 2.4 0 3.4 7 1.5 7 5.2 0 1.5-1.4 2.4-3.5 2.4a4.6 4.6 0 0 1-4-1.7"/></svg></span>
+                        <strong>Estimasi Nilai Ekonomi</strong>
+                    </div>
+                    <div class="login-feature-card">
+                        <span><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16v-5"/><path d="M12 16V8"/><path d="M16 16v-3"/></svg></span>
+                        <strong>Riwayat Analisis</strong>
+                    </div>
+                </div>
+
+            </aside>
+
+            <section class="login-card-wrap">
+                <form class="login-card" method="post" data-login-form>
+                    <img src="{{ url_for('static', filename='img/logo-badge.png') }}" alt="Logo EcoLens" class="login-logo">
+                    <div class="login-heading">
+                        <p class="eyebrow">Secure Workspace</p>
+                        <h2>Selamat Datang Kembali</h2>
+                        <p>Masuk untuk melanjutkan ke Dashboard EcoLens.</p>
+                    </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="login-toast-wrap" role="alert">
+                                {% for category, message in messages %}
+                                    <div class="flash {{ category }}">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <label>Username
+                        <input type="text" name="username" placeholder="Masukkan username" autocomplete="username" required>
+                    </label>
+
+                    <label>Password
+                        <span class="password-field">
+                            <input id="passwordInput" type="password" name="password" placeholder="Masukkan password" autocomplete="current-password" required>
+                            <button class="password-toggle" type="button" data-toggle-password aria-label="Tampilkan password">
+                                <svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </span>
+                    </label>
+
+                    <div class="login-options">
+                        <label class="remember"><input type="checkbox" name="remember"> Ingat saya</label>
+                        <a href="#" aria-label="Lupa password">Lupa Password?</a>
+                    </div>
+
+                    <button class="btn primary login-submit" type="submit">
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                        <span class="btn-label">Masuk ke Dashboard</span>
+                    </button>
+
+                    <div class="demo-account">
+                        <span>Demo Account</span>
+                        <strong>Gunakan akun yang tersedia di tabel users.</strong>
+                    </div>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

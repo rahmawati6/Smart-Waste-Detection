@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}Dataset Sampah EcoLens{% endblock %}
+{% block page_title %}Dataset Sampah{% endblock %}
+{% block heading %}Dataset Sampah Spesifik{% endblock %}
+
+{% block content %}
+<section class="hero-card">
+    <div>
+        <p class="eyebrow">Training Workspace</p>
+        <h2>Dataset kini sampai level objek sampah spesifik.</h2>
+        <p>Folder dataset disusun per kategori induk dan jenis objek, sehingga model custom YOLO siap mengenali Botol Plastik, Kardus, Kaleng Minuman, Kulit Pisang, Kabel USB, dan jenis lain.</p>
+        <div class="hero-actions">
+            <form action="{{ url_for('dataset_sort') }}" method="post" data-sort-dataset-form><button class="btn primary" type="submit">Kelompokkan Dataset Otomatis</button></form>
+            <form action="{{ url_for('dataset_split') }}" method="post"><button class="btn primary" type="submit">Split 70/20/10</button></form>
+            <form action="{{ url_for('dataset_clean') }}" method="post"><button class="btn secondary" type="submit">Clean Dataset</button></form>
+        </div>
+    </div>
+    <div class="hero-metric">
+        <span>Total dataset</span>
+        <strong>{{ status.total }}</strong>
+        <small>gambar tersimpan</small>
+    </div>
+</section>
+
+{% if sort_report %}
+<section class="card">
+    <div class="section-title">
+        <h3><span class="title-icon"><svg><use href="#i-spark"></use></svg></span> Laporan Auto Pilah Dataset</h3>
+        <span>{{ sort_report.timestamp }}</span>
+    </div>
+    <div class="insight-grid">
+        <div><strong>{{ sort_report.total_images_read }}</strong><span>Total dibaca</span></div>
+        <div><strong>{{ sort_report.categorized }}</strong><span>Masuk kategori umum</span></div>
+        <div><strong>{{ sort_report.specific }}</strong><span>Masuk jenis spesifik</span></div>
+        <div><strong>{{ sort_report.unknown }}</strong><span>Unknown</span></div>
+        <div><strong>{{ sort_report.invalid }}</strong><span>Rusak/invalid</span></div>
+        <div><strong>{{ sort_report.duplicates }}</strong><span>Duplikat</span></div>
+    </div>
+    {% if sort_report.empty_specific_folders %}
+        <blockquote>Folder jenis spesifik yang masih kosong: {{ sort_report.empty_specific_folders[:12]|join(', ') }}{% if sort_report.empty_specific_folders|length > 12 %}, dan {{ sort_report.empty_specific_folders|length - 12 }} folder lain{% endif %}.</blockquote>
+    {% endif %}
+</section>
+{% endif %}
+
+<section class="dataset-layout">
+    <form class="card form-card" method="post" enctype="multipart/form-data">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-upload"></use></svg></span> Upload Dataset</h3>
+            <span>Jenis spesifik</span>
+        </div>
+        <label>Jenis Sampah Spesifik
+            <select name="category" required>
+                {% for category, items in category_groups.items() %}
+                    <optgroup label="{{ category }}">
+                        {% for item in items %}
+                            <option value="{{ item.item_key }}">{{ item.item_name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="upload-zone">Gambar Dataset
+            <input type="file" name="images" accept=".jpg,.jpeg,.png,image/*" multiple required>
+            <span><svg><use href="#i-dataset"></use></svg><strong>Upload banyak gambar</strong><small>Validasi, resize, dan duplikat otomatis dicek</small></span>
+        </label>
+        <button class="btn primary" type="submit">Upload ke Dataset</button>
+        <p class="muted command-note">CLI: <code>python utils/download_dataset.py</code></p>
+    </form>
+
+    <article class="card">
+        <div class="section-title">
+            <h3><span class="title-icon"><svg><use href="#i-report"></use></svg></span> Ringkasan Kategori Utama</h3>
+            <span>{{ status.min_per_category }} min/jenis</span>
+        </div>
+        {% if status.warning %}
+            <blockquote>{{ status.warning }}</blockquote>
+        {% else %}
+            <blockquote>Setiap jenis spesifik sudah memenuhi minimal 50 gambar.</blockquote>
+        {% endif %}
+        <div class="dataset-count-grid compact">
+            {% for category, total in status.category_totals.items() %}
+            <article>
+                <strong>{{ category }}</strong>
+                <em>{{ total }}</em>
+            </article>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+
+{% if status.low_items %}
+<section class="card">
+    <div class="section-title">
+        <h3><span class="title-icon"><svg><use href="#i-info"></use></svg></span> Warning Dataset Kurang</h3>
+        <span>&lt; 50 gambar</span>
+    </div>
+    <div class="dataset-warning-grid">
+        {% for item in status.low_items[:24] %}
+            <article>
+                <strong>{{ item.item_name }}</strong>
+                <span>{{ item.category }}</span>
+                <em>{{ item.total }}/{{ item.required }} gambar</em>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section class="card">
+    <div class="section-title">
+        <h3><span class="title-icon"><svg><use href="#i-dashboard"></use></svg></span> Jumlah Gambar per Jenis Spesifik</h3>
+        <span>Train · Valid · Test</span>
+    </div>
+    {% for category, items in category_groups.items() %}
+        <div class="dataset-preview-block">
+            <h3>{{ category }} <small>Total: {{ status.category_totals.get(category, 0) }}</small></h3>
+            <div class="dataset-count-grid">
+                {% for item in items %}
+                    {% set counts = status.counts[item.item_key] %}
+                    <article class="{{ 'needs-data' if counts.total < item.min_images_required else '' }}">
+                        <strong>{{ item.item_name }}</strong>
+                        <div><span>Train</span><b>{{ counts.train }}</b></div>
+                        <div><span>Valid</span><b>{{ counts.valid }}</b></div>
+                        <div><span>Test</span><b>{{ counts.test }}</b></div>
+                        <div><span>Specific</span><b>{{ counts.specific }}</b></div>
+                        <em>Total: {{ counts.total }}</em>
+                    </article>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</section>
+
+<section class="card">
+    <div class="section-title">
+        <h3><span class="title-icon"><svg><use href="#i-dataset"></use></svg></span> Preview Gambar per Jenis Spesifik</h3>
+        <span>Gambar terbaru</span>
+    </div>
+    {% for category, items in category_groups.items() %}
+        <div class="dataset-preview-block">
+            <h3>{{ category }}</h3>
+            {% for item in items %}
+                <div class="specific-preview-row">
+                    <div>
+                        <strong>{{ item.item_name }}</strong>
+                        <small>{{ status.counts[item.item_key].total }} gambar</small>
+                    </div>
+                    <div class="dataset-preview-grid">
+                        {% for image in previews[item.item_key] %}
+                            {% set item_key = image.parent.name %}
+                            {% set category_dir = image.parent.parent.name %}
+                            {% set split = image.parent.parent.parent.name %}
+                            <article>
+                                <img src="{{ url_for('dataset_file', split=split, category=category_dir, item_key=item_key, filename=image.name) }}" alt="{{ item.item_name }}">
+                                <small>{{ split }}</small>
+                                <form action="{{ url_for('dataset_delete', split=split, category=category_dir, item_key=item_key, filename=image.name) }}" method="post">
+                                    <button type="submit">Hapus</button>
+                                </form>
+                            </article>
+                        {% else %}
+                            <p class="empty">Belum ada gambar.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</section>
+
+<section class="card">
+    <div class="section-title">
+        <h3><span class="title-icon"><svg><use href="#i-info"></use></svg></span> Unknown / Perlu Data Tambahan</h3>
+        <span>Perlu koreksi label</span>
+    </div>
+    <div class="dataset-preview-grid">
+        {% for image in previews.unknown %}
+            <article>
+                <img src="{{ url_for('dataset_unknown_file', filename=image.name) }}" alt="Unknown">
+                <small>unknown</small>
+                <form action="{{ url_for('dataset_delete_unknown', filename=image.name) }}" method="post">
+                    <button type="submit">Hapus</button>
+                </form>
+            </article>
+        {% else %}
+            <p class="empty">Belum ada gambar unknown.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelector('[data-sort-dataset-form]')?.addEventListener('submit', event => {
+    const button = event.currentTarget.querySelector('button');
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'Memilah dataset...';
+    }
+});
+</script>
+{% endblock %}
